@@ -1,0 +1,14 @@
+drop table if exists t;
+create table t( txt text );
+insert into t 
+SELECT GROUP_CONCAT(hashtag SEPARATOR ', ') as txt
+FROM doits 
+GROUP BY 'all';
+
+
+drop temporary table if exists temp;
+create temporary table temp( val char(255) );
+set @sql = concat("insert into temp (val) values ('", replace(( select group_concat(distinct txt) as data from t), ",", "'),('"),"');");
+prepare stmt1 from @sql;
+execute stmt1;
+select distinct(TRIM(val)) as hashtag from temp;
